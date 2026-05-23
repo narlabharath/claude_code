@@ -1,0 +1,26 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Dev-internal (not public)
+dev/
+CLAUDE.md
+
+# Orphan build scripts
+fix_section.py
+preflight.py
+
+# Sandbox sentinel
+claude-code-sandbox/
+
+# Photo source folders
+delivery/assets/Images/source/

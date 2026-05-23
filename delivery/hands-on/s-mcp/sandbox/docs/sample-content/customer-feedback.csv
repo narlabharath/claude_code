@@ -1,0 +1,11 @@
+date,source,rating,category,comment
+2024-01-08,app-store,5,performance,"Search is noticeably faster this month. Great work."
+2024-01-12,support-email,2,reliability,"Payment webhook failed twice this week. Had to retry manually."
+2024-01-19,app-store,4,notifications,"Email notifications work great. Waiting for push support."
+2024-02-01,nps-survey,7,general,"Solid tool overall. The auth flow is much cleaner now."
+2024-02-14,support-email,1,reliability,"Got charged twice. Webhook issue apparently. Still waiting for refund."
+2024-02-22,app-store,5,reliability,"Haven't had any issues since the update. Much more stable."
+2024-03-05,nps-survey,9,notifications,"Push notifications launched! This is what I was waiting for."
+2024-03-11,support-email,3,performance,"Search still slow on large result sets. 1-2 second delays."
+2024-03-15,app-store,4,notifications,"Push notifications are fast. Slight delay on SMS sometimes."
+2024-03-20,nps-survey,8,general,"Reliability has improved a lot. One lingering search speed issue."
