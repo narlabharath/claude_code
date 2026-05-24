@@ -7211,7 +7211,86 @@ To add a dependency, either:
 
 <span style="color:#FF7B72;">if</span> <span style="color:#79C0FF;">__name__</span> <span style="color:#FF7B72;">==</span> <span style="color:#A5D6FF;">"__main__"</span><span style="color:#E5E7EB;">:</span>
 <span style="color:#E5E7EB;">    mcp.run(transport=</span><span style="color:#A5D6FF;">"stdio"</span><span style="color:#E5E7EB;">)</span></code></pre>
-              </div><div style="background:#F1F5F9;border:1px solid var(--border-color);border-radius:6px;padding:0.7rem 0.85rem;font-size:12px;color:var(--text-secondary);line-height:1.6;">3 tools, 1 resource, 1 prompt. The full server in <a href="../hands-on/s-mcp/sandbox/mcp-server/notes_server.py" style="color:#9CA3AF;">sandbox/mcp-server/notes_server.py</a> adds <code>search_notes()</code> and <code>summarize_all_notes</code> prompt.</div></div>
+              </div><div style="background:#F1F5F9;border:1px solid var(--border-color);border-radius:6px;padding:0.7rem 0.85rem;font-size:12px;color:var(--text-secondary);line-height:1.6;">3 tools, 1 resource, 1 prompt. The full server in <a href="hands-on/s-mcp/sandbox/mcp-server/notes_server.py" style="color:#9CA3AF;">sandbox/mcp-server/notes_server.py</a> adds <code>search_notes()</code> and <code>summarize_all_notes</code> prompt.</div></div>
+            </div>
+          </div>
+
+          <!-- Expandable: Walking through notes_server.py -->
+          <div class="expandable expandable-purple" style="margin:0.85rem 0;">
+            <div class="expandable-header" style="background:var(--ms-purple);">
+              <span>Walking through <code style="background:rgba(255,255,255,0.15);color:white;padding:0.1rem 0.3rem;border-radius:3px;">notes_server.py</code></span>
+              <span class="expandable-icon">▾</span>
+            </div>
+            <div class="expandable-content">
+              <p style="margin:0 0 1rem;font-size:12px;color:var(--text-secondary);">The file maps directly to the three primitives in Tab 2: one decorator per type. Five functions total — three Tools the agent executes, one Resource it reads, one Prompt it follows.</p>
+
+              <p style="margin:0 0 0.35rem;font-size:12px;font-weight:700;color:var(--ms-purple);">Setup — imports and server init</p>
+              <div style="background:#1A1B2E;border-radius:6px;padding:0;overflow:hidden;margin:0 0 0.5rem;">
+                <div style="background:#252637;padding:0.3rem 0.75rem;border-bottom:1px solid #3A3B52;font-size:11px;color:#9CA3AF;">notes_server.py — lines 19–27</div>
+                <pre style="margin:0;padding:0.7rem 1rem;font-size:11.5px;line-height:1.65;color:#E5E7EB;overflow-x:auto;background:#1A1B2E;"><code><span style="color:#FF7B72;">import</span> <span style="color:#E5E7EB;">os</span>
+<span style="color:#FF7B72;">from</span> <span style="color:#E5E7EB;">mcp.server.fastmcp</span> <span style="color:#FF7B72;">import</span> <span style="color:#79C0FF;">FastMCP</span>
+
+<span style="color:#E5E7EB;">mcp = </span><span style="color:#79C0FF;">FastMCP</span><span style="color:#E5E7EB;">(</span><span style="color:#A5D6FF;">"notes"</span><span style="color:#E5E7EB;">)</span>
+
+<span style="color:#8B949E;"># Path is relative to this file's location; resolves to sandbox/docs/sample-content</span>
+<span style="color:#E5E7EB;">_NOTES_DIR = os.path.abspath(</span>
+<span style="color:#E5E7EB;">    os.path.join(os.path.dirname(</span><span style="color:#79C0FF;">__file__</span><span style="color:#E5E7EB;">), </span><span style="color:#A5D6FF;">".."</span><span style="color:#E5E7EB;">, </span><span style="color:#A5D6FF;">"docs"</span><span style="color:#E5E7EB;">, </span><span style="color:#A5D6FF;">"sample-content"</span><span style="color:#E5E7EB;">)</span>
+<span style="color:#E5E7EB;">)</span></code></pre>
+              </div>
+              <p style="margin:0 0 1.25rem;font-size:12px;color:var(--text-secondary);">Three imports and one line of init. <code>FastMCP("notes")</code> is the server name — what Claude Code will see when it lists this server. The <code>_NOTES_DIR</code> path resolution keeps the server file-location-agnostic regardless of where you launch it from.</p>
+
+              <p style="margin:0 0 0.35rem;font-size:12px;font-weight:700;color:var(--ms-purple);">Tools — what the agent executes</p>
+              <div style="background:#1A1B2E;border-radius:6px;padding:0;overflow:hidden;margin:0 0 0.5rem;">
+                <div style="background:#252637;padding:0.3rem 0.75rem;border-bottom:1px solid #3A3B52;font-size:11px;color:#9CA3AF;">notes_server.py — lines 32–35 (list_notes, simplest of the three tools)</div>
+                <pre style="margin:0;padding:0.7rem 1rem;font-size:11.5px;line-height:1.65;color:#E5E7EB;overflow-x:auto;background:#1A1B2E;"><code><span style="color:#8B9CF4;">@mcp.tool()</span>
+<span style="color:#FF7B72;">def</span> <span style="color:#D2A8FF;">list_notes</span><span style="color:#E5E7EB;">() -> list[str]:</span>
+<span style="color:#E5E7EB;">    </span><span style="color:#A5D6FF;">"""List all available note files in the notes directory."""</span>
+<span style="color:#E5E7EB;">    </span><span style="color:#FF7B72;">return</span> <span style="color:#79C0FF;">sorted</span><span style="color:#E5E7EB;">(os.listdir(_NOTES_DIR))</span></code></pre>
+              </div>
+              <p style="margin:0 0 0.5rem;font-size:12px;color:var(--text-secondary);"><code>@mcp.tool()</code> turns any Python function into a tool the agent can call. The function name is the tool name. The docstring is what Claude Code shows the user when asking permission. The return type is what the agent gets back. That's the whole contract.</p>
+              <p style="margin:0 0 1.25rem;font-size:12px;color:var(--text-secondary);">The file has three tools: <code>list_notes</code> (above), <code>read_note</code> (with path-traversal protection — line 46), and <code>search_notes</code> (case-insensitive keyword match).</p>
+
+              <p style="margin:0 0 0.35rem;font-size:12px;font-weight:700;color:var(--ms-purple);">Resources — what the agent reads</p>
+              <div style="background:#1A1B2E;border-radius:6px;padding:0;overflow:hidden;margin:0 0 0.5rem;">
+                <div style="background:#252637;padding:0.3rem 0.75rem;border-bottom:1px solid #3A3B52;font-size:11px;color:#9CA3AF;">notes_server.py — lines 75–84 (notes_index)</div>
+                <pre style="margin:0;padding:0.7rem 1rem;font-size:11.5px;line-height:1.65;color:#E5E7EB;overflow-x:auto;background:#1A1B2E;"><code><span style="color:#8B9CF4;">@mcp.resource(</span><span style="color:#A5D6FF;">"notes://index"</span><span style="color:#8B9CF4;">)</span>
+<span style="color:#FF7B72;">def</span> <span style="color:#D2A8FF;">notes_index</span><span style="color:#E5E7EB;">() -> str:</span>
+<span style="color:#E5E7EB;">    </span><span style="color:#A5D6FF;">"""Formatted index of all note files with their sizes."""</span>
+<span style="color:#E5E7EB;">    lines = [</span><span style="color:#A5D6FF;">"# Notes directory index\n"</span><span style="color:#E5E7EB;">]</span>
+<span style="color:#E5E7EB;">    </span><span style="color:#FF7B72;">for</span><span style="color:#E5E7EB;"> fname </span><span style="color:#FF7B72;">in</span><span style="color:#E5E7EB;"> </span><span style="color:#79C0FF;">sorted</span><span style="color:#E5E7EB;">(os.listdir(_NOTES_DIR)):</span>
+<span style="color:#E5E7EB;">        fpath = os.path.join(_NOTES_DIR, fname)</span>
+<span style="color:#E5E7EB;">        </span><span style="color:#FF7B72;">if</span><span style="color:#E5E7EB;"> os.path.isfile(fpath):</span>
+<span style="color:#E5E7EB;">            size = os.path.getsize(fpath)</span>
+<span style="color:#E5E7EB;">            lines.append(</span><span style="color:#A5D6FF;">f"- {fname}  ({size} bytes)"</span><span style="color:#E5E7EB;">)</span>
+<span style="color:#E5E7EB;">    </span><span style="color:#FF7B72;">return</span><span style="color:#E5E7EB;"> </span><span style="color:#A5D6FF;">"\n"</span><span style="color:#E5E7EB;">.join(lines)</span></code></pre>
+              </div>
+              <p style="margin:0 0 0.5rem;font-size:12px;color:var(--text-secondary);"><code>@mcp.resource()</code> exposes a function as read-only data. The URI string (<code>"notes://index"</code>) is how the agent addresses it — like a URL inside the MCP server. The model reads resources; it doesn't execute them the way it executes tools.</p>
+              <p style="margin:0 0 1.25rem;font-size:12px;color:var(--text-secondary);">Tools are verbs. Resources are nouns. The agent calls a tool to do something; reads a resource to know something.</p>
+
+              <p style="margin:0 0 0.35rem;font-size:12px;font-weight:700;color:var(--ms-purple);">Prompts — what the agent follows</p>
+              <div style="background:#1A1B2E;border-radius:6px;padding:0;overflow:hidden;margin:0 0 0.5rem;">
+                <div style="background:#252637;padding:0.3rem 0.75rem;border-bottom:1px solid #3A3B52;font-size:11px;color:#9CA3AF;">notes_server.py — lines 89–95 (summarize_all_notes)</div>
+                <pre style="margin:0;padding:0.7rem 1rem;font-size:11.5px;line-height:1.65;color:#E5E7EB;overflow-x:auto;background:#1A1B2E;"><code><span style="color:#8B9CF4;">@mcp.prompt()</span>
+<span style="color:#FF7B72;">def</span> <span style="color:#D2A8FF;">summarize_all_notes</span><span style="color:#E5E7EB;">() -> str:</span>
+<span style="color:#E5E7EB;">    </span><span style="color:#A5D6FF;">"""Summarize the contents of every note in the directory."""</span>
+<span style="color:#E5E7EB;">    </span><span style="color:#FF7B72;">return</span><span style="color:#E5E7EB;"> (</span>
+<span style="color:#E5E7EB;">        </span><span style="color:#A5D6FF;">"Use list_notes() to get the file list, then read_note() for each file. "</span>
+<span style="color:#E5E7EB;">        </span><span style="color:#A5D6FF;">"Produce a one-paragraph summary per file, then a one-line overall summary."</span>
+<span style="color:#E5E7EB;">    )</span></code></pre>
+              </div>
+              <p style="margin:0 0 1.25rem;font-size:12px;color:var(--text-secondary);"><code>@mcp.prompt()</code> exposes a reusable prompt template. When the user picks this prompt in Claude Code, the returned string becomes the prompt sent to the agent — which then invokes the server's own tools to execute it. Notice the loop: the prompt tells the agent to use <code>list_notes()</code> and <code>read_note()</code>. One server defines all three layers.</p>
+
+              <p style="margin:0 0 0.35rem;font-size:12px;font-weight:700;color:var(--ms-purple);">Entry point — how the server starts</p>
+              <div style="background:#1A1B2E;border-radius:6px;padding:0;overflow:hidden;margin:0 0 0.5rem;">
+                <div style="background:#252637;padding:0.3rem 0.75rem;border-bottom:1px solid #3A3B52;font-size:11px;color:#9CA3AF;">notes_server.py — lines 108–109</div>
+                <pre style="margin:0;padding:0.7rem 1rem;font-size:11.5px;line-height:1.65;color:#E5E7EB;overflow-x:auto;background:#1A1B2E;"><code><span style="color:#FF7B72;">if</span> <span style="color:#79C0FF;">__name__</span> <span style="color:#FF7B72;">==</span> <span style="color:#A5D6FF;">"__main__"</span><span style="color:#E5E7EB;">:</span>
+<span style="color:#E5E7EB;">    mcp.run(transport=</span><span style="color:#A5D6FF;">"stdio"</span><span style="color:#E5E7EB;">)</span></code></pre>
+              </div>
+              <p style="margin:0 0 1.25rem;font-size:12px;color:var(--text-secondary);"><code>transport="stdio"</code> is the contract: the server reads JSON-RPC messages from stdin and writes responses to stdout. Claude Code launches the server as a subprocess and pipes JSON-RPC through that connection. This is why you can't run the file directly in a shell — pressing Enter sends <code>\n</code> to stdin, and the JSON-RPC parser errors. The server expects a real client (Claude Code or MCP Inspector) on the other end.</p>
+
+              <div style="background:var(--bg-white);border:1px solid var(--border-color);border-left:4px solid var(--ms-purple);border-radius:0 6px 6px 0;padding:0.75rem 0.9rem;">
+                <p style="margin:0;font-size:12px;color:var(--text-secondary);">Three decorators. Five functions. One transport. That's a complete MCP server. Everything else — auth, OAuth, SSE/HTTP transport, remote deployment — is variation on the same shape. See the mcp_demo materials in §15 for the full path.</p>
+              </div>
             </div>
           </div>
 
@@ -7778,7 +7857,7 @@ To add a dependency, either:
                 <span style="background:#F0FDF4;color:#166534;border:1px solid #86EFAC;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;">Commands</span>
                 <span style="background:#F0FDF4;color:#166534;border:1px solid #86EFAC;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;">Cross-session</span>
               </div>
-              <p style="margin:0;font-size:11px;color:#9CA3AF;"><a href="../hands-on/init-project/README.md" style="color:var(--ms-green);">delivery/init-project/ ↗</a> — README, spec, and install guide.</p>
+              <p style="margin:0;font-size:11px;color:#9CA3AF;"><a href="init-project/README.md" style="color:var(--ms-green);">delivery/init-project/ ↗</a> — README, spec, and install guide.</p>
             </div>
           </div>
         </div>
@@ -9292,7 +9371,7 @@ Copy-Item .\init-project-changelog.md "$dst\init-project-changelog.md" -Force</c
                 <span style="background:#F0FDF4;color:#166534;border:1px solid #86EFAC;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;">Commands</span>
                 <span style="background:#F0FDF4;color:#166534;border:1px solid #86EFAC;font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;">Cross-session</span>
               </div>
-              <p style="margin:0;font-size:11px;color:#9CA3AF;"><a href="../hands-on/init-project/README.md" style="color:var(--ms-green);">delivery/init-project/ ↗</a> — README, spec, and install guide.</p>
+              <p style="margin:0;font-size:11px;color:#9CA3AF;"><a href="init-project/README.md" style="color:var(--ms-green);">delivery/init-project/ ↗</a> — README, spec, and install guide.</p>
             </div>
           </div>
 
@@ -9376,7 +9455,7 @@ Copy-Item .\init-project-changelog.md "$dst\init-project-changelog.md" -Force</c
       <h2 class="footer-h">Further reading</h2>
       <ul class="footer-links">
         <li><a href="https://github.com/anthropics/claude-code">Claude Code official docs</a></li>
-        <li><a href="../dev/PLAN.md">Build plan (internal)</a></li>
+        <li>Build plan (internal)</li>
       </ul>
       <p class="footer-next">Start with <a href="#s-why">1 — Why you’re here</a>.</p>
     </div>

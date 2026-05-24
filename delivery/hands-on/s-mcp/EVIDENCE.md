@@ -33,6 +33,10 @@ Three files created in `tier4-powerups/docs/sample-content/`:
 - `notes-2024-q2.md` — Q2 engineering notes
 - `customer-feedback.csv` — 10 rows of customer feedback
 
+| 5 | Code walkthrough | Annotated tour of `notes_server.py` (lines 1–109) as five teachable units (Setup · Tools · Resources · Prompts · Entry point), verbatim code excerpts + FastMCP pattern annotations | `delivery/walkthrough.html` §13 Tab 4, expandable "Walking through notes_server.py" | ✅ added 2026-05-24 |
+
+---
+
 ## Deferred captures
 
 - `/mcp` screenshot (live Claude Code session) — deferred, represented as text
